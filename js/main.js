@@ -86,35 +86,39 @@ sections.forEach(section => {
     });
 });
 
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyDGcgqBxbPGTjUXXqvKxAMGcgGHqS7xPjA",
+    authDomain: "wedding-rsvp-d0d73.firebaseapp.com",
+    databaseURL: "https://wedding-rsvp-d0d73-default-rtdb.firebaseio.com",
+    projectId: "wedding-rsvp-d0d73",
+    storageBucket: "wedding-rsvp-d0d73.appspot.com",
+    messagingSenderId: "1098355717051",
+    appId: "1:1098355717051:web:b8d89c6c569f1e4c6f7c7e"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 // RSVP Form Handling
 const rsvpForm = document.getElementById('rsvpForm');
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzicU76X-RidnJIcSxNtuCR4fpfCDxiZ5DixnF3AGaVdJ2bytvyUWI_x6fhrbgfqne5Zw/exec';
 
 async function submitRSVP(formData) {
     try {
-        const response = await fetch(SHEETS_URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
+        // Generate a unique key for the RSVP
+        const newRsvpRef = database.ref('rsvps').push();
+        
+        // Save the data
+        await newRsvpRef.set({
+            ...formData,
+            submittedAt: firebase.database.ServerValue.TIMESTAMP
         });
 
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Failed to submit RSVP');
-        }
-        
-        if (data.status === 'error') {
-            throw new Error(data.message || 'Failed to save RSVP data');
-        }
-
-        return data;
+        return { status: 'success' };
     } catch (error) {
         console.error('RSVP Submission Error:', error);
-        throw new Error(error.message || 'Failed to connect to the server. Please try again.');
+        throw new Error('Failed to save your RSVP. Please try again.');
     }
 }
 
@@ -125,7 +129,7 @@ function showSuccessMessage(form) {
             <h3>Thank you for your RSVP!</h3>
             <p>We've received your response and look forward to celebrating with you.</p>
             <div class="success-details">
-                <p>A confirmation email will be sent to your email address.</p>
+                <p>We'll send updates to your email address.</p>
                 <button onclick="location.reload()" class="btn-submit">
                     <span>Submit Another Response</span>
                 </button>
@@ -171,7 +175,6 @@ rsvpForm.addEventListener('submit', async (e) => {
 
         // Collect form data
         const formData = {
-            timestamp: new Date().toISOString(),
             name: document.getElementById('name').value.trim(),
             email: document.getElementById('email').value.trim(),
             attendance: document.getElementById('attendance').value,
@@ -184,7 +187,13 @@ rsvpForm.addEventListener('submit', async (e) => {
             throw new Error('Please fill in all required fields');
         }
 
-        // Submit to Google Sheets
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            throw new Error('Please enter a valid email address');
+        }
+
+        // Submit to Firebase
         await submitRSVP(formData);
         showSuccessMessage(rsvpForm);
 
