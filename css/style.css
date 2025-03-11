@@ -1,12 +1,15 @@
 :root {
-    --primary-color: #E6E6FA; /* Lavender */
-    --secondary-color: #556B2F; /* Olive Green */
-    --accent-color: #D4B8E8; /* Light Lavender */
-    --accent-green: #7C8F4F; /* Light Olive */
-    --text-color: #2C3E50;
-    --light-text: #fff;
-    --background-color: #FDFBF9;
-    --gold: #D4AF37;
+    --primary-color: #2D3436; /* Dark Gray */
+    --secondary-color: #A8E6CF; /* Mint Green */
+    --accent-color: #FFD3B6; /* Peach */
+    --text-color: #2D3436;
+    --light-text: #FFFFFF;
+    --background-color: #F7F7F7;
+    --gradient-1: linear-gradient(135deg, #A8E6CF 0%, #DCEDC1 100%);
+    --gradient-2: linear-gradient(45deg, #FFD3B6 0%, #FFB6B9 100%);
+    --nav-blur: rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -33,17 +36,14 @@ body {
     height: 100vh;
     position: relative;
     background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../images/couple.jpeg');
-    background-size: contain;
-    background-repeat: no-repeat;
+    background-size: cover;
     background-position: center;
-    background-color: var(--secondary-color);
+    background-attachment: fixed;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     text-align: center;
-    color: var(--light-text);
-    padding: 20px;
+    overflow: hidden;
 }
 
 .hero-section::before {
@@ -70,46 +70,70 @@ body {
     background: rgba(0, 0, 0, 0.2);
 }
 
+/* Modern Navigation */
 nav {
     position: fixed;
     top: 0;
     width: 100%;
-    padding: 20px 0;
     z-index: 1000;
-    background: rgba(85, 107, 47, 0.8);
+    transition: var(--transition);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--nav-blur);
+}
+
+.nav-scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.nav-scrolled .nav-links a {
+    color: var(--text-color);
 }
 
 .nav-links {
     display: flex;
     justify-content: center;
     gap: 40px;
+    padding: 20px;
 }
 
 .nav-links a {
     color: var(--light-text);
     text-decoration: none;
-    font-size: 1.2rem;
-    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    transition: all 0.3s ease;
+    transition: var(--transition);
+    position: relative;
 }
 
-.nav-links a:hover {
-    color: var(--accent-color);
-    transform: translateY(-2px);
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background: var(--secondary-color);
+    transition: var(--transition);
+}
+
+.nav-links a:hover::after {
+    width: 100%;
 }
 
 .hero-content {
     position: relative;
     z-index: 2;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(5px);
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: translateY(20px);
+    opacity: 0;
+    animation: fadeInUp 1s ease forwards;
 }
 
 .om-symbol {
@@ -208,20 +232,37 @@ section::before {
     margin-top: 50px;
 }
 
+/* Modern Cards */
 .event-card {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 40px;
+    background: white;
+    padding: 30px;
     border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    border: 1px solid rgba(85, 107, 47, 0.1);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--gradient-1);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: var(--transition);
+}
+
+.event-card:hover::before {
+    transform: scaleX(1);
 }
 
 .event-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    border-color: var(--accent-green);
 }
 
 .event-card i {
@@ -294,52 +335,48 @@ section::before {
     position: relative;
 }
 
+/* RSVP Form */
 .rsvp-form {
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    background: rgba(255, 255, 255, 0.95);
+    background: white;
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--card-shadow);
 }
 
-.rsvp-form input,
-.rsvp-form select {
-    padding: 15px;
-    border: 2px solid var(--accent-green);
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.3s ease;
+.form-group {
+    margin-bottom: 20px;
 }
 
-.rsvp-form input:focus,
-.rsvp-form select:focus {
-    outline: none;
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-control:focus {
     border-color: var(--secondary-color);
-    box-shadow: 0 0 10px rgba(85, 107, 47, 0.2);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.2);
 }
 
-.rsvp-form button {
-    background: linear-gradient(45deg, var(--secondary-color), var(--accent-green));
-    color: var(--light-text);
-    padding: 18px;
+.btn-submit {
+    background: var(--gradient-1);
+    color: var(--text-color);
+    padding: 12px 24px;
     border: none;
-    border-radius: 10px;
-    font-size: 1.2rem;
-    font-family: 'Cormorant Garamond', serif;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
-.rsvp-form button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(168, 230, 207, 0.4);
 }
 
 /* Footer */
@@ -366,8 +403,49 @@ footer {
     transform: translateY(-3px);
 }
 
-/* Responsive Design */
+/* Mobile Navigation */
+.mobile-nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001;
+}
+
 @media (max-width: 768px) {
+    .mobile-nav-toggle {
+        display: block;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 80%;
+        max-width: 300px;
+        background: white;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: var(--transition);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-links a {
+        color: var(--text-color);
+        font-size: 1.2rem;
+        padding: 15px 0;
+    }
+
     .hero-section {
         height: 100vh;
         background-size: contain;
@@ -389,14 +467,6 @@ footer {
     
     .names {
         font-size: 2rem;
-    }
-
-    .nav-links {
-        flex-direction: column;
-        gap: 15px;
-        background: rgba(85, 107, 47, 0.95);
-        padding: 20px;
-        border-radius: 10px;
     }
 
     .gallery-grid {
@@ -545,7 +615,7 @@ footer {
 }
 
 /* Animations */
-@keyframes fadeIn {
+@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -556,9 +626,16 @@ footer {
     }
 }
 
-.hero-content > * {
-    animation: fadeIn 1s ease forwards;
+.animate-fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
 }
+
+/* Add animation delays for cascade effect */
+.event-card:nth-child(1) { animation-delay: 0.2s; }
+.event-card:nth-child(2) { animation-delay: 0.4s; }
+.event-card:nth-child(3) { animation-delay: 0.6s; }
 
 .decorative-line {
     width: 150px;
@@ -675,4 +752,72 @@ section::after {
     height: 100px;
     background: linear-gradient(to bottom, transparent, rgba(230, 230, 250, 0.1));
     pointer-events: none;
+}
+
+/* RSVP Form Success/Error Messages */
+.success-message {
+    text-align: center;
+    padding: 40px 20px;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.success-message i {
+    font-size: 4rem;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.success-message h3 {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 15px;
+}
+
+.success-message p {
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+.success-details {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.alert-error {
+    background-color: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    color: #DC2626;
+}
+
+.alert-error i {
+    margin-right: 10px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Disabled form states */
+.form-control:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
 } 
