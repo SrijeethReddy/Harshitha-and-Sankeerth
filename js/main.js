@@ -88,7 +88,7 @@ sections.forEach(section => {
 
 // RSVP Form Handling
 const rsvpForm = document.getElementById('rsvpForm');
-const SHEETS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL'; // Replace with your URL
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw_jTCp-PjNl9W9iXtDJxSt_HhtjmhK6oVAMh7HGnjKTVvI1D5u1O5Ak4AxeBemxHmXug/exec';
 
 async function submitRSVP(formData) {
     const response = await fetch(SHEETS_URL, {
