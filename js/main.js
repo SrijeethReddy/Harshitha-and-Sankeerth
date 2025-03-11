@@ -88,11 +88,11 @@ sections.forEach(section => {
 
 // Firebase Configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyDGcgqBxbPGTjUXXqvKxAMGcgGHqS7xPjA",
-    authDomain: "wedding-rsvp-d0d73.firebaseapp.com",
-    databaseURL: "https://wedding-rsvp-d0d73-default-rtdb.firebaseio.com",
-    projectId: "wedding-rsvp-d0d73",
-    storageBucket: "wedding-rsvp-d0d73.appspot.com",
+    apiKey: "AIzaSyBXXVbmxGNxXYvGAJEXPEYXfNM9zBRwXxY",
+    authDomain: "harshithasankeerth.firebaseapp.com",
+    databaseURL: "https://harshithasankeerth-default-rtdb.firebaseio.com",
+    projectId: "harshithasankeerth",
+    storageBucket: "harshithasankeerth.appspot.com",
     messagingSenderId: "1098355717051",
     appId: "1:1098355717051:web:b8d89c6c569f1e4c6f7c7e"
 };
