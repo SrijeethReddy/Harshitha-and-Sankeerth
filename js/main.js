@@ -88,22 +88,34 @@ sections.forEach(section => {
 
 // RSVP Form Handling
 const rsvpForm = document.getElementById('rsvpForm');
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw_jTCp-PjNl9W9iXtDJxSt_HhtjmhK6oVAMh7HGnjKTVvI1D5u1O5Ak4AxeBemxHmXug/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzicU76X-RidnJIcSxNtuCR4fpfCDxiZ5DixnF3AGaVdJ2bytvyUWI_x6fhrbgfqne5Zw/exec';
 
 async function submitRSVP(formData) {
-    const response = await fetch(SHEETS_URL, {
-        method: 'POST',
-        body: JSON.stringify(formData),
-        headers: {
-            'Content-Type': 'application/json'
+    try {
+        const response = await fetch(SHEETS_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to submit RSVP');
         }
-    });
+        
+        if (data.status === 'error') {
+            throw new Error(data.message || 'Failed to save RSVP data');
+        }
 
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+        return data;
+    } catch (error) {
+        console.error('RSVP Submission Error:', error);
+        throw new Error(error.message || 'Failed to connect to the server. Please try again.');
     }
-
-    return response.json();
 }
 
 function showSuccessMessage(form) {
