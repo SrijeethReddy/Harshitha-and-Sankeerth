@@ -124,18 +124,57 @@
                 <div class="form-group">
                     <input type="email" class="form-control" id="email" placeholder="Your Email" required>
                 </div>
-                <div class="form-group">
-                    <select class="form-control" id="attendance" required>
-                        <option value="">Will you be joining us?</option>
-                        <option value="yes">Joyfully Accept</option>
-                        <option value="no">Regretfully Decline</option>
-                    </select>
+                
+                <!-- Haldi Ceremony RSVP -->
+                <div class="event-rsvp">
+                    <h3>Haldi Ceremony</h3>
+                    <div class="form-group">
+                        <select class="form-control" id="haldi_attendance" required>
+                            <option value="">Will you attend the Haldi Ceremony?</option>
+                            <option value="yes">Yes, I will attend</option>
+                            <option value="no">Unable to attend</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" class="form-control guests-input" id="haldi_guests" 
+                               placeholder="Number of Guests for Haldi" min="0" max="10">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="number" class="form-control" id="guests" placeholder="Number of Guests" required>
+
+                <!-- Pellikoduku & Cocktail RSVP -->
+                <div class="event-rsvp">
+                    <h3>Pellikoduku & Cocktail</h3>
+                    <div class="form-group">
+                        <select class="form-control" id="cocktail_attendance" required>
+                            <option value="">Will you attend the Pellikoduku & Cocktail?</option>
+                            <option value="yes">Yes, I will attend</option>
+                            <option value="no">Unable to attend</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" class="form-control guests-input" id="cocktail_guests" 
+                               placeholder="Number of Guests for Pellikoduku & Cocktail" min="0" max="10">
+                    </div>
                 </div>
+
+                <!-- Wedding Ceremony RSVP -->
+                <div class="event-rsvp">
+                    <h3>Wedding Ceremony</h3>
+                    <div class="form-group">
+                        <select class="form-control" id="wedding_attendance" required>
+                            <option value="">Will you attend the Wedding Ceremony?</option>
+                            <option value="yes">Yes, I will attend</option>
+                            <option value="no">Unable to attend</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" class="form-control guests-input" id="wedding_guests" 
+                               placeholder="Number of Guests for Wedding" min="0" max="10">
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <textarea class="form-control" id="message" placeholder="Your Message or Wishes" rows="4"></textarea>
+                    <textarea class="form-control" id="message" placeholder="Your Message or Special Requirements" rows="4"></textarea>
                 </div>
                 <button type="submit" class="btn-submit">
                     <span>Send RSVP</span>

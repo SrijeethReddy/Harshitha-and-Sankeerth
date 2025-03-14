@@ -127,9 +127,9 @@ function showSuccessMessage(form) {
         <div class="success-message">
             <i class="fas fa-check-circle"></i>
             <h3>Thank you for your RSVP!</h3>
-            <p>We've received your response and look forward to celebrating with you.</p>
+            <p>We've received your responses for each event.</p>
             <div class="success-details">
-                <p>We'll send updates to your email address.</p>
+                <p>We'll send the event details to your email address.</p>
                 <button onclick="location.reload()" class="btn-submit">
                     <span>Submit Another Response</span>
                 </button>
@@ -154,6 +154,30 @@ function showErrorMessage(form, error) {
     }, 5000);
 }
 
+// Handle guest input fields for each event
+const events = ['haldi', 'cocktail', 'wedding'];
+events.forEach(event => {
+    const attendanceSelect = document.getElementById(`${event}_attendance`);
+    const guestsInput = document.getElementById(`${event}_guests`);
+
+    if (attendanceSelect && guestsInput) {
+        attendanceSelect.addEventListener('change', () => {
+            if (attendanceSelect.value === 'no') {
+                guestsInput.value = '0';
+                guestsInput.disabled = true;
+            } else {
+                guestsInput.disabled = false;
+            }
+        });
+
+        guestsInput.addEventListener('input', (e) => {
+            let value = parseInt(e.target.value);
+            if (value < 0) e.target.value = 0;
+            if (value > 10) e.target.value = 10;
+        });
+    }
+});
+
 rsvpForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const submitBtn = rsvpForm.querySelector('button[type="submit"]');
@@ -177,20 +201,38 @@ rsvpForm.addEventListener('submit', async (e) => {
         const formData = {
             name: document.getElementById('name').value.trim(),
             email: document.getElementById('email').value.trim(),
-            attendance: document.getElementById('attendance').value,
-            guests: document.getElementById('guests').value,
+            events: {
+                haldi: {
+                    attendance: document.getElementById('haldi_attendance').value,
+                    guests: document.getElementById('haldi_guests').value || 0
+                },
+                cocktail: {
+                    attendance: document.getElementById('cocktail_attendance').value,
+                    guests: document.getElementById('cocktail_guests').value || 0
+                },
+                wedding: {
+                    attendance: document.getElementById('wedding_attendance').value,
+                    guests: document.getElementById('wedding_guests').value || 0
+                }
+            },
             message: document.getElementById('message').value.trim()
         };
 
         // Validate form data
-        if (!formData.name || !formData.email || !formData.attendance) {
-            throw new Error('Please fill in all required fields');
+        if (!formData.name || !formData.email) {
+            throw new Error('Please fill in your name and email');
         }
 
         // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             throw new Error('Please enter a valid email address');
+        }
+
+        // Validate at least one event is selected
+        const hasSelectedEvent = Object.values(formData.events).some(event => event.attendance === 'yes');
+        if (!hasSelectedEvent) {
+            throw new Error('Please select at least one event to attend');
         }
 
         // Submit to Firebase
@@ -210,25 +252,6 @@ rsvpForm.addEventListener('submit', async (e) => {
         // Show error message
         showErrorMessage(rsvpForm, error.message);
     }
-});
-
-// Add form validation
-const guestInput = document.getElementById('guests');
-const attendanceSelect = document.getElementById('attendance');
-
-attendanceSelect.addEventListener('change', () => {
-    if (attendanceSelect.value === 'no') {
-        guestInput.value = '0';
-        guestInput.disabled = true;
-    } else {
-        guestInput.disabled = false;
-    }
-});
-
-guestInput.addEventListener('input', (e) => {
-    let value = parseInt(e.target.value);
-    if (value < 0) e.target.value = 0;
-    if (value > 10) e.target.value = 10; // Set maximum guests
 });
 
 // Lazy loading for images
