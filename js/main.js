@@ -155,7 +155,7 @@ function showErrorMessage(form, error) {
 }
 
 // Handle guest input fields for each event
-const events = ['haldi', 'cocktail', 'wedding'];
+const events = ['haldi', 'cocktail', 'mehendi', 'bridegroom', 'wedding'];
 events.forEach(event => {
     const attendanceSelect = document.getElementById(`${event}_attendance`);
     const guestsInput = document.getElementById(`${event}_guests`);
@@ -210,6 +210,14 @@ rsvpForm.addEventListener('submit', async (e) => {
                     attendance: document.getElementById('cocktail_attendance').value,
                     guests: document.getElementById('cocktail_guests').value || 0
                 },
+                mehendi: {
+                    attendance: document.getElementById('mehendi_attendance').value,
+                    guests: document.getElementById('mehendi_guests').value || 0
+                },
+                bridegroom: {
+                    attendance: document.getElementById('bridegroom_attendance').value,
+                    guests: document.getElementById('bridegroom_guests').value || 0
+                },
                 wedding: {
                     attendance: document.getElementById('wedding_attendance').value,
                     guests: document.getElementById('wedding_guests').value || 0
@@ -249,7 +257,6 @@ rsvpForm.addEventListener('submit', async (e) => {
             element.disabled = false;
         });
 
-        // Show error message
         showErrorMessage(rsvpForm, error.message);
     }
 });
