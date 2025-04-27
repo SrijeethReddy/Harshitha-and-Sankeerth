@@ -86,179 +86,52 @@ sections.forEach(section => {
     });
 });
 
-// Firebase Configuration
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyBXXVbmxGNxXYvGAJEXPEYXfNM9zBRwXxY",
-    authDomain: "harshithasankeerth.firebaseapp.com",
-    databaseURL: "https://harshithasankeerth-default-rtdb.firebaseio.com",
-    projectId: "harshithasankeerth",
-    storageBucket: "harshithasankeerth.appspot.com",
-    messagingSenderId: "1098355717051",
-    appId: "1:1098355717051:web:b8d89c6c569f1e4c6f7c7e"
+    apiKey: "AIzaSyD9Ou9CJCkbm32of11uIXa4kRw1Kyp8JNU",
+    authDomain: "harshithasankeerth-c9df5.firebaseapp.com",
+    databaseURL: "https://harshithasankeerth-c9df5-default-rtdb.firebaseio.com",
+    projectId: "harshithasankeerth-c9df5",
+    storageBucket: "harshithasankeerth-c9df5.firebasestorage.app",
+    messagingSenderId: "706915122780",
+    appId: "1:706915122780:web:b70b1549257d36b8597099",
+    measurementId: "G-Z5YPFN75Z6"
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const database = getDatabase(app);
 
-// RSVP Form Handling
-const rsvpForm = document.getElementById('rsvpForm');
-
-async function submitRSVP(formData) {
-    try {
-        // Generate a unique key for the RSVP
-        const newRsvpRef = database.ref('rsvps').push();
-        
-        // Save the data
-        await newRsvpRef.set({
-            ...formData,
-            submittedAt: firebase.database.ServerValue.TIMESTAMP
-        });
-
-        return { status: 'success' };
-    } catch (error) {
-        console.error('RSVP Submission Error:', error);
-        throw new Error('Failed to save your RSVP. Please try again.');
-    }
-}
-
-function showSuccessMessage(form) {
-    form.innerHTML = `
-        <div class="success-message">
-            <i class="fas fa-check-circle"></i>
-            <h3>Thank you for your RSVP!</h3>
-            <p>We've received your responses for each event.</p>
-            <div class="success-details">
-                <p>We'll send the event details to your email address.</p>
-                <button onclick="location.reload()" class="btn-submit">
-                    <span>Submit Another Response</span>
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-function showErrorMessage(form, error) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'alert alert-error';
-    errorDiv.innerHTML = `
-        <i class="fas fa-exclamation-circle"></i>
-        <p>Sorry, there was an error submitting your RSVP: ${error}</p>
-        <p>Please try again or contact us directly.</p>
-    `;
-    form.insertBefore(errorDiv, form.firstChild);
-    
-    // Remove error message after 5 seconds
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 5000);
-}
-
-// Handle guest input fields for each event
-const events = ['haldi', 'cocktail', 'mehendi', 'bridegroom', 'wedding'];
-events.forEach(event => {
-    const attendanceSelect = document.getElementById(`${event}_attendance`);
-    const guestsInput = document.getElementById(`${event}_guests`);
-
-    if (attendanceSelect && guestsInput) {
-        attendanceSelect.addEventListener('change', () => {
-            if (attendanceSelect.value === 'no') {
-                guestsInput.value = '0';
-                guestsInput.disabled = true;
-            } else {
-                guestsInput.disabled = false;
-            }
-        });
-
-        guestsInput.addEventListener('input', (e) => {
-            let value = parseInt(e.target.value);
-            if (value < 0) e.target.value = 0;
-            if (value > 10) e.target.value = 10;
-        });
-    }
-});
-
-rsvpForm.addEventListener('submit', async (e) => {
+// Form submission handler
+document.getElementById('rsvpForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const submitBtn = rsvpForm.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.innerHTML;
     
-    // Clear any existing error messages
-    const existingError = rsvpForm.querySelector('.alert-error');
-    if (existingError) {
-        existingError.remove();
-    }
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        attending: document.getElementById('attending').value,
+        guests: document.getElementById('guests').value,
+        message: document.getElementById('message').value,
+        timestamp: new Date().toISOString()
+    };
 
-    try {
-        // Disable form and show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        Array.from(rsvpForm.elements).forEach(element => {
-            element.disabled = true;
+    // Push data to Firebase
+    const rsvpRef = ref(database, 'rsvps');
+    push(rsvpRef, formData)
+        .then(() => {
+            alert('Thank you for your RSVP!');
+            document.getElementById('rsvpForm').reset();
+        })
+        .catch((error) => {
+            console.error('Error saving RSVP:', error);
+            alert('There was an error saving your RSVP. Please try again.');
         });
-
-        // Collect form data
-        const formData = {
-            name: document.getElementById('name').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            events: {
-                haldi: {
-                    attendance: document.getElementById('haldi_attendance').value,
-                    guests: document.getElementById('haldi_guests').value || 0
-                },
-                cocktail: {
-                    attendance: document.getElementById('cocktail_attendance').value,
-                    guests: document.getElementById('cocktail_guests').value || 0
-                },
-                mehendi: {
-                    attendance: document.getElementById('mehendi_attendance').value,
-                    guests: document.getElementById('mehendi_guests').value || 0
-                },
-                bridegroom: {
-                    attendance: document.getElementById('bridegroom_attendance').value,
-                    guests: document.getElementById('bridegroom_guests').value || 0
-                },
-                wedding: {
-                    attendance: document.getElementById('wedding_attendance').value,
-                    guests: document.getElementById('wedding_guests').value || 0
-                }
-            },
-            message: document.getElementById('message').value.trim()
-        };
-
-        // Validate form data
-        if (!formData.name || !formData.email) {
-            throw new Error('Please fill in your name and email');
-        }
-
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            throw new Error('Please enter a valid email address');
-        }
-
-        // Validate at least one event is selected
-        const hasSelectedEvent = Object.values(formData.events).some(event => event.attendance === 'yes');
-        if (!hasSelectedEvent) {
-            throw new Error('Please select at least one event to attend');
-        }
-
-        // Submit to Firebase
-        await submitRSVP(formData);
-        showSuccessMessage(rsvpForm);
-
-    } catch (error) {
-        console.error('Error:', error);
-        
-        // Re-enable form
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-        Array.from(rsvpForm.elements).forEach(element => {
-            element.disabled = false;
-        });
-
-        showErrorMessage(rsvpForm, error.message);
-    }
 });
 
 // Lazy loading for images
