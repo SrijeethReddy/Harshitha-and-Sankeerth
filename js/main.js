@@ -112,26 +112,110 @@ const database = getDatabase(app);
 document.getElementById('rsvpForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Show loading state
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitButton.disabled = true;
+
+    // Collect form data
     const formData = {
         name: document.getElementById('name').value,
         email: document.getElementById('email').value,
-        attending: document.getElementById('attending').value,
-        guests: document.getElementById('guests').value,
+        events: {
+            haldi: {
+                attendance: document.getElementById('haldi_attendance').value,
+                guests: document.getElementById('haldi_guests').value || 0
+            },
+            cocktail: {
+                attendance: document.getElementById('cocktail_attendance').value,
+                guests: document.getElementById('cocktail_guests').value || 0
+            },
+            mehendi: {
+                attendance: document.getElementById('mehendi_attendance').value,
+                guests: document.getElementById('mehendi_guests').value || 0
+            },
+            bridegroom: {
+                attendance: document.getElementById('bridegroom_attendance').value,
+                guests: document.getElementById('bridegroom_guests').value || 0
+            },
+            wedding: {
+                attendance: document.getElementById('wedding_attendance').value,
+                guests: document.getElementById('wedding_guests').value || 0
+            }
+        },
         message: document.getElementById('message').value,
         timestamp: new Date().toISOString()
     };
+
+    console.log('Submitting form data:', formData);
 
     // Push data to Firebase
     const rsvpRef = ref(database, 'rsvps');
     push(rsvpRef, formData)
         .then(() => {
-            alert('Thank you for your RSVP!');
-            document.getElementById('rsvpForm').reset();
+            console.log('RSVP successfully saved to Firebase');
+            // Show success message
+            const formContainer = document.querySelector('.rsvp-form');
+            formContainer.innerHTML = `
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Thank you for your RSVP!</h3>
+                    <p>We've received your responses for each event.</p>
+                    <div class="success-details">
+                        <p>We'll send the event details to your email address.</p>
+                        <button onclick="location.reload()" class="btn-submit">
+                            <span>Submit Another Response</span>
+                        </button>
+                    </div>
+                </div>
+            `;
         })
         .catch((error) => {
             console.error('Error saving RSVP:', error);
-            alert('There was an error saving your RSVP. Please try again.');
+            // Show error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-error';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Sorry, there was an error submitting your RSVP: ${error.message}</p>
+                <p>Please try again or contact us directly.</p>
+            `;
+            this.insertBefore(errorDiv, this.firstChild);
+            
+            // Reset button state
+            submitButton.innerHTML = originalButtonText;
+            submitButton.disabled = false;
+            
+            // Remove error message after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
         });
+});
+
+// Handle guest input fields for each event
+const events = ['haldi', 'cocktail', 'mehendi', 'bridegroom', 'wedding'];
+events.forEach(event => {
+    const attendanceSelect = document.getElementById(`${event}_attendance`);
+    const guestsInput = document.getElementById(`${event}_guests`);
+
+    if (attendanceSelect && guestsInput) {
+        attendanceSelect.addEventListener('change', () => {
+            if (attendanceSelect.value === 'no') {
+                guestsInput.value = '0';
+                guestsInput.disabled = true;
+            } else {
+                guestsInput.disabled = false;
+            }
+        });
+
+        guestsInput.addEventListener('input', (e) => {
+            let value = parseInt(e.target.value);
+            if (value < 0) e.target.value = 0;
+            if (value > 10) e.target.value = 10;
+        });
+    }
 });
 
 // Lazy loading for images
