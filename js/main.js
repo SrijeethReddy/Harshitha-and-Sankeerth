@@ -204,42 +204,13 @@ document.getElementById('rsvpForm').addEventListener('submit', function(e) {
     push(rsvpRef, formData)
         .then(() => {
             console.log('RSVP successfully saved to Firebase');
-            // Show success message
-            const formContainer = document.querySelector('.rsvp-form');
-            formContainer.innerHTML = `
-                <div class="success-message">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Thank you for your RSVP!</h3>
-                    <p>We've received your responses for each event.</p>
-                    <div class="success-details">
-                        <p>We'll send the event details to your email address.</p>
-                        <button onclick="location.reload()" class="btn-submit">
-                            <span>Submit Another Response</span>
-                        </button>
-                    </div>
-                </div>
-            `;
+            // Redirect to thank you page
+            window.location.href = 'thank-you.html';
         })
         .catch((error) => {
             console.error('Error saving RSVP:', error);
-            // Show error message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'alert alert-error';
-            errorDiv.innerHTML = `
-                <i class="fas fa-exclamation-circle"></i>
-                <p>Sorry, there was an error submitting your RSVP: ${error.message}</p>
-                <p>Please try again or contact us directly.</p>
-            `;
-            this.insertBefore(errorDiv, this.firstChild);
-            
-            // Reset button state
-            submitButton.innerHTML = originalButtonText;
-            submitButton.disabled = false;
-            
-            // Remove error message after 5 seconds
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 5000);
+            // Redirect to error page
+            window.location.href = 'error.html';
         });
 });
 
@@ -268,7 +239,13 @@ events.forEach(event => {
             }
         });
 
+        // Prevent guest count changes when event is declined
         guestsInput.addEventListener('input', (e) => {
+            if (attendanceSelect.value === 'no') {
+                e.target.value = '0';
+                return;
+            }
+            
             let value = parseInt(e.target.value);
             if (isNaN(value) || value < 0) {
                 e.target.value = '0';
@@ -279,8 +256,13 @@ events.forEach(event => {
 
         // Add validation on blur
         guestsInput.addEventListener('blur', (e) => {
-            if (!e.target.value) {
+            if (attendanceSelect.value === 'no') {
                 e.target.value = '0';
+                return;
+            }
+            
+            if (!e.target.value) {
+                e.target.value = '1';
             }
         });
     }
