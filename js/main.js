@@ -108,6 +108,30 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const database = getDatabase(app);
 
+// Form validation function
+function validateForm(formData) {
+    const errors = [];
+    
+    // Validate name
+    if (!formData.name.trim()) {
+        errors.push('Please enter your name');
+    }
+    
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+        errors.push('Please enter a valid email address');
+    }
+    
+    // Validate at least one event is selected
+    const hasSelectedEvent = Object.values(formData.events).some(event => event.attendance === 'yes');
+    if (!hasSelectedEvent) {
+        errors.push('Please select at least one event to attend');
+    }
+    
+    return errors;
+}
+
 // Form submission handler
 document.getElementById('rsvpForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -120,33 +144,58 @@ document.getElementById('rsvpForm').addEventListener('submit', function(e) {
 
     // Collect form data
     const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
         events: {
             haldi: {
                 attendance: document.getElementById('haldi_attendance').value,
-                guests: document.getElementById('haldi_guests').value || 0
+                guests: document.getElementById('haldi_guests').value || '0'
             },
             cocktail: {
                 attendance: document.getElementById('cocktail_attendance').value,
-                guests: document.getElementById('cocktail_guests').value || 0
+                guests: document.getElementById('cocktail_guests').value || '0'
             },
             mehendi: {
                 attendance: document.getElementById('mehendi_attendance').value,
-                guests: document.getElementById('mehendi_guests').value || 0
+                guests: document.getElementById('mehendi_guests').value || '0'
             },
             bridegroom: {
                 attendance: document.getElementById('bridegroom_attendance').value,
-                guests: document.getElementById('bridegroom_guests').value || 0
+                guests: document.getElementById('bridegroom_guests').value || '0'
             },
             wedding: {
                 attendance: document.getElementById('wedding_attendance').value,
-                guests: document.getElementById('wedding_guests').value || 0
+                guests: document.getElementById('wedding_guests').value || '0'
             }
         },
-        message: document.getElementById('message').value,
+        message: document.getElementById('message').value.trim(),
         timestamp: new Date().toISOString()
     };
+
+    // Validate form data
+    const errors = validateForm(formData);
+    if (errors.length > 0) {
+        // Show error messages
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-error';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i>
+            <ul>
+                ${errors.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+        `;
+        this.insertBefore(errorDiv, this.firstChild);
+        
+        // Reset button state
+        submitButton.innerHTML = originalButtonText;
+        submitButton.disabled = false;
+        
+        // Remove error message after 5 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+        return;
+    }
 
     console.log('Submitting form data:', formData);
 
@@ -201,19 +250,38 @@ events.forEach(event => {
     const guestsInput = document.getElementById(`${event}_guests`);
 
     if (attendanceSelect && guestsInput) {
+        // Set initial state
+        if (attendanceSelect.value === 'no') {
+            guestsInput.value = '0';
+            guestsInput.disabled = true;
+        }
+
         attendanceSelect.addEventListener('change', () => {
             if (attendanceSelect.value === 'no') {
                 guestsInput.value = '0';
                 guestsInput.disabled = true;
             } else {
                 guestsInput.disabled = false;
+                if (!guestsInput.value || guestsInput.value === '0') {
+                    guestsInput.value = '1';
+                }
             }
         });
 
         guestsInput.addEventListener('input', (e) => {
             let value = parseInt(e.target.value);
-            if (value < 0) e.target.value = 0;
-            if (value > 10) e.target.value = 10;
+            if (isNaN(value) || value < 0) {
+                e.target.value = '0';
+            } else if (value > 10) {
+                e.target.value = '10';
+            }
+        });
+
+        // Add validation on blur
+        guestsInput.addEventListener('blur', (e) => {
+            if (!e.target.value) {
+                e.target.value = '0';
+            }
         });
     }
 });
