@@ -91,7 +91,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// Your web app's Firebase configuration
+// Firebase initialization
 const firebaseConfig = {
     apiKey: "AIzaSyD9Ou9CJCkbm32of11uIXa4kRw1Kyp8JNU",
     authDomain: "harshithasankeerth-c9df5.firebaseapp.com",
@@ -103,114 +103,77 @@ const firebaseConfig = {
     measurementId: "G-Z5YPFN75Z6"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const database = getDatabase(app);
+// Use the global Firebase instance
+const app = window.firebase.app;
+const database = window.firebase.database;
 
-// Form validation function
-function validateForm(formData) {
-    const errors = [];
+// Form validation
+function validateForm() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const events = document.querySelectorAll('input[name^="event"]:checked');
     
-    // Validate name
-    if (!formData.name.trim()) {
-        errors.push('Please enter your name');
+    if (!name) {
+        alert('Please enter your name');
+        return false;
     }
     
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-        errors.push('Please enter a valid email address');
+    if (!email) {
+        alert('Please enter your email');
+        return false;
     }
     
-    // Validate at least one event is selected
-    const hasSelectedEvent = Object.values(formData.events).some(event => event.attendance === 'yes');
-    if (!hasSelectedEvent) {
-        errors.push('Please select at least one event to attend');
+    if (events.length === 0) {
+        alert('Please select at least one event');
+        return false;
     }
     
-    return errors;
+    return true;
 }
 
-// Form submission handler
+// Form submission
 document.getElementById('rsvpForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // Show loading state
-    const submitButton = this.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.innerHTML;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    submitButton.disabled = true;
-
-    // Collect form data
+    if (!validateForm()) {
+        return;
+    }
+    
     const formData = {
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
-        events: {
-            haldi: {
-                attendance: document.getElementById('haldi_attendance').value,
-                guests: document.getElementById('haldi_guests').value || '0'
-            },
-            cocktail: {
-                attendance: document.getElementById('cocktail_attendance').value,
-                guests: document.getElementById('cocktail_guests').value || '0'
-            },
-            mehendi: {
-                attendance: document.getElementById('mehendi_attendance').value,
-                guests: document.getElementById('mehendi_guests').value || '0'
-            },
-            bridegroom: {
-                attendance: document.getElementById('bridegroom_attendance').value,
-                guests: document.getElementById('bridegroom_guests').value || '0'
-            },
-            wedding: {
-                attendance: document.getElementById('wedding_attendance').value,
-                guests: document.getElementById('wedding_guests').value || '0'
-            }
-        },
-        message: document.getElementById('message').value.trim(),
-        timestamp: new Date().toISOString()
+        phone: document.getElementById('phone').value.trim(),
+        events: {}
     };
-
-    // Validate form data
-    const errors = validateForm(formData);
-    if (errors.length > 0) {
-        // Show error messages
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-error';
-        errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-circle"></i>
-            <ul>
-                ${errors.map(error => `<li>${error}</li>`).join('')}
-            </ul>
-        `;
-        this.insertBefore(errorDiv, this.firstChild);
-        
-        // Reset button state
-        submitButton.innerHTML = originalButtonText;
-        submitButton.disabled = false;
-        
-        // Remove error message after 5 seconds
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 5000);
-        return;
-    }
-
-    console.log('Submitting form data:', formData);
-
+    
+    // Collect event attendance
+    document.querySelectorAll('input[name^="event"]').forEach(input => {
+        const eventName = input.name;
+        formData.events[eventName] = input.checked;
+    });
+    
+    // Collect guest information
+    document.querySelectorAll('input[name^="guest"]').forEach(input => {
+        const guestNumber = input.name.match(/\d+/)[0];
+        if (!formData.guests) {
+            formData.guests = {};
+        }
+        if (!formData.guests[guestNumber]) {
+            formData.guests[guestNumber] = {};
+        }
+        formData.guests[guestNumber][input.name.split('_')[1]] = input.value.trim();
+    });
+    
     // Push data to Firebase
-    const rsvpRef = ref(database, 'rsvps');
-    push(rsvpRef, formData)
+    const rsvpRef = database.ref('rsvps');
+    rsvpRef.push(formData)
         .then(() => {
-            console.log('RSVP successfully saved to Firebase');
-            // Redirect to thank you page
-            window.location.href = 'thank-you.html';
+            alert('Thank you for your RSVP! We look forward to celebrating with you.');
+            document.getElementById('rsvpForm').reset();
         })
-        .catch((error) => {
-            console.error('Error saving RSVP:', error);
-            // Redirect to error page
-            window.location.href = 'error.html';
+        .catch(error => {
+            console.error('Error submitting RSVP:', error);
+            alert('There was an error submitting your RSVP. Please try again later.');
         });
 });
 

@@ -7,11 +7,31 @@
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Great+Vibes&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Firebase App (the core Firebase SDK) -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
         import { getDatabase } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9Ou9CJCkbm32of11uIXa4kRw1Kyp8JNU",
+            authDomain: "harshithasankeerth-c9df5.firebaseapp.com",
+            databaseURL: "https://harshithasankeerth-c9df5-default-rtdb.firebaseio.com",
+            projectId: "harshithasankeerth-c9df5",
+            storageBucket: "harshithasankeerth-c9df5.firebasestorage.app",
+            messagingSenderId: "706915122780",
+            appId: "1:706915122780:web:b70b1549257d36b8597099",
+            measurementId: "G-Z5YPFN75Z6"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+
+        // Make Firebase available globally
+        window.firebase = { app, analytics, database };
     </script>
 </head>
 <body>
@@ -141,9 +161,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <!-- Your custom scripts -->
     <script src="js/main.js"></script>
 </body>
